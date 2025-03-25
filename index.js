@@ -1,5 +1,9 @@
 const express = require("express");
 const admin = require("firebase-admin");
+const axios = require("axios");
+
+const { v4: uuidv4 } = require("uuid");
+
 require("dotenv").config();
 
 const { createNewUser, createUserWallet } = require("./actions");
@@ -8,6 +12,7 @@ const { initializeFirebase } = require("./firebaseAdmin");
 initializeFirebase();
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
 
 // 3. Use middleware to parse JSON bodies if needed
 app.use(express.json());
@@ -60,4 +65,45 @@ app.post("/set-claims", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
+});
+
+// wallet
+app.post("/txnkey", async (req, res) => {
+  const { amount, email, phone, firstname } = req.body;
+  console.log("body =>", amount, email, phone, firstname);
+
+  const merchantKey = "CI3E63WOM";
+  const merchantSalt = "IH40QYYUR";
+  const txnId = uuidv4();
+  const productinfo = "Wallet recharge for ride";
+  const initiateTxnEndpoint =
+    "https://testpay.easebuzz.in/payment/initiateLink";
+
+  try {
+    const transactionResult = await axios.post(
+      initiateTxnEndpoint,
+      {
+        key: merchantKey,
+        txnid: txnId,
+        amount: amount,
+        productinfo: productinfo,
+        firstname: firstname,
+        phone: phone,
+        email: email,
+        surl: "https://www.google.co.in/",
+        furl: "https://www.google.co.in/",
+        hash: `${merchantKey}|${txnId}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${merchantSalt}`,
+      },
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    res.send(transactionResult.data);
+  } catch (error) {
+    console.error("Error creating transaction key", error?.message);
+    res.send("error initiating transaction");
+  }
 });
