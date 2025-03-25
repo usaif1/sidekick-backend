@@ -1,6 +1,7 @@
 const express = require("express");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const sha512 = require("js-sha512");
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -74,32 +75,46 @@ app.post("/txnkey", async (req, res) => {
 
   const merchantKey = "CI3E63WOM";
   const merchantSalt = "IH40QYYUR";
-  const txnId = uuidv4();
+  const txnId = uuidv4().toString();
   const productinfo = "Wallet recharge for ride";
-  const initiateTxnEndpoint =
-    "https://testpay.easebuzz.in/payment/initiateLink";
+  const initiateTxnEndpoint = "https://pay.easebuzz.in/payment/initiateLink";
+  // "https://testpay.easebuzz.in/payment/initiateLink";
+
+  const paymentHash = `${merchantKey}|${txnId}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${merchantSalt}`;
+
+  const data = {
+    key: merchantKey,
+    txnid: txnId,
+    amount: amount,
+    email: email,
+    phone: phone,
+    firstname: firstname,
+    udf1: "",
+    udf2: "",
+    udf3: "",
+    udf4: "",
+    udf5: "",
+    productinfo: "test",
+    udf6: "",
+    udf7: "",
+    udf8: "",
+    udf9: "",
+    udf10: "",
+    furl: "http://localhost:3000/response",
+    surl: "http://localhost:3000/response",
+    hash: sha512(paymentHash),
+    unique_id: "",
+    split_payments: "",
+    sub_merchant_id: "",
+    customer_authentication_id: "",
+  };
 
   try {
-    const transactionResult = await axios.post(
-      initiateTxnEndpoint,
-      {
-        key: merchantKey,
-        txnid: txnId,
-        amount: amount,
-        productinfo: productinfo,
-        firstname: firstname,
-        phone: phone,
-        email: email,
-        surl: "https://www.google.co.in/",
-        furl: "https://www.google.co.in/",
-        hash: `${merchantKey}|${txnId}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${merchantSalt}`,
+    const transactionResult = await axios.post(initiateTxnEndpoint, data, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
+    });
 
     res.send(transactionResult.data);
   } catch (error) {
