@@ -11,7 +11,11 @@ const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config();
 
-const { createNewUser, createUserWallet } = require("./actions");
+const {
+  createNewUser,
+  createUserWallet,
+  startFetchFetchScooterByNumber,
+} = require("./actions");
 const { initializeFirebase } = require("./firebaseAdmin");
 
 initializeFirebase();
@@ -205,10 +209,18 @@ app.post("/initiate-payment", async (req, res) => {
   }
 });
 
-app.get("/scooter", (req, res) => {
+app.get("/scooter", async (req, res) => {
   const { regno } = req.query;
 
   console.log("regno", regno);
-
-  res.send(true);
+  try {
+    const response = await startFetchFetchScooterByNumber(regno);
+    if (response) {
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  } catch (error) {
+    res.send(false);
+  }
 });

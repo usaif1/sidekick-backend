@@ -77,7 +77,62 @@ const createUserWallet = async (user_id) => {
     });
 };
 
+/*
+This is an example snippet - you should consider tailoring it
+to your service.
+*/
+
+async function fetchGraphQL(operationsDoc, operationName, variables) {
+  const result = await fetch(
+    "https://supreme-mustang-86.hasura.app/v1/graphql",
+    {
+      method: "POST",
+      headers: {
+        "x-hasura-admin-secret":
+          "gVpDomfT4GaYV76w7CmCLmWidk117lEJwrdqckLAnC8H2e62nLfXXS6ehzEAISu3",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: operationsDoc,
+        variables: variables,
+        operationName: operationName,
+      }),
+    }
+  );
+
+  return await result.json();
+}
+
+const operationsDoc = `
+  query fetchScooterByNumber($_ilike: String = "SCOOTER1") {
+    scooters(where: {registration_number: {_ilike: $_ilike}}) {
+      registration_number
+      id
+    }
+  }
+`;
+
+function fetchFetchScooterByNumber(_ilike) {
+  return fetchGraphQL(operationsDoc, "fetchScooterByNumber", {
+    _ilike: _ilike,
+  });
+}
+
+async function startFetchFetchScooterByNumber(_ilike) {
+  const { errors, data } = await fetchFetchScooterByNumber(_ilike);
+
+  if (errors) {
+    // handle those errors like a pro
+    console.error(errors);
+  }
+
+  // do something great with this precious data
+  console.log(data);
+  return data?.scooters[0];
+}
+
 module.exports = {
   createNewUser,
   createUserWallet,
+  startFetchFetchScooterByNumber,
 };
