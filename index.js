@@ -139,25 +139,30 @@ function generateEasebuzzHash(data, salt) {
 }
 
 app.post("/initiate-payment", async (req, res) => {
+  const { amount, email, phone, firstname } = req.body;
+
+  const merchantKey = "CI3E63WOM";
+  const txnId = uuidv4().toString();
+
   const encodedParams = new URLSearchParams();
-  encodedParams.set("key", "CI3E63WOM");
-  encodedParams.set("txnid", "TXN001");
-  encodedParams.set("amount", "10");
+  encodedParams.set("key", `${merchantKey}`);
+  encodedParams.set("txnid", `${txnId}`);
+  encodedParams.set("amount", `${amount}`);
   encodedParams.set("productinfo", "walletrecharge");
-  encodedParams.set("firstname", "test");
-  encodedParams.set("phone", "9999999999");
-  encodedParams.set("email", "test@email.com");
+  encodedParams.set("firstname", `${firstname}`);
+  encodedParams.set("phone", `${phone}`);
+  encodedParams.set("email", `${email}`);
   encodedParams.set("surl", "http://localhost:3000");
   encodedParams.set("furl", "http://localhost:3000");
   encodedParams.set(
     "hash",
     generateEasebuzzHash({
-      key: "CI3E63WOM",
-      txnid: "TXN001",
-      amount: "10",
+      key: `${merchantKey}`,
+      txnid: txnId,
+      amount: `${amount}`,
       productinfo: "walletrecharge",
-      firstname: "test",
-      email: "test@email.com",
+      firstname: `${firstname}`,
+      email: `${email}`,
     })
   );
   encodedParams.set("udf1", "");
