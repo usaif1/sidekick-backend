@@ -204,3 +204,7 @@ app.post("/initiate-payment", async (req, res) => {
     console.error(error);
   }
 });
+
+app.get("/scooter?regno=SCOOTER1", (req, res) => {
+  res.send(true);
+});
