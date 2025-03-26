@@ -205,6 +205,10 @@ app.post("/initiate-payment", async (req, res) => {
   }
 });
 
-app.get("/scooter?regno=SCOOTER1", (req, res) => {
+app.get("/scooter", (req, res) => {
+  const { regno } = req.query;
+
+  console.log("regno", regno);
+
   res.send(true);
 });
