@@ -1,9 +1,11 @@
 const express = require("express");
 const admin = require("firebase-admin");
-const axios = require("axios");
 const sha512 = require("js-sha512");
 const CryptoJS = require("crypto-js");
 const qs = require("querystring");
+const axios = require("axios").default;
+const { URLSearchParams } = require("url");
+const crypto = require("crypto");
 
 const { v4: uuidv4 } = require("uuid");
 
@@ -125,93 +127,75 @@ app.listen(PORT, () => {
 //   }
 // });
 
+function generateEasebuzzHash(data, salt) {
+  const merchantSalt = "IH40QYYUR";
+  const { key, txnid, amount, productinfo, firstname, email } = data;
+
+  const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${merchantSalt}`;
+
+  // return crypto.createHash("sha512").update(hashString).digest("hex");
+
+  return sha512.sha512(hashString);
+}
+
 app.post("/initiate-payment", async (req, res) => {
-  const merchantKey = "CI3E63WOM";
-  const salt = "IH40QYYUR"; // WARNING: Never expose salt publicly
-  const env = "test";
+  const encodedParams = new URLSearchParams();
+  encodedParams.set("key", "CI3E63WOM");
+  encodedParams.set("txnid", "TXN001");
+  encodedParams.set("amount", "10");
+  encodedParams.set("productinfo", "walletrecharge");
+  encodedParams.set("firstname", "test");
+  encodedParams.set("phone", "9999999999");
+  encodedParams.set("email", "test@email.com");
+  encodedParams.set("surl", "http://localhost:3000");
+  encodedParams.set("furl", "http://localhost:3000");
+  encodedParams.set(
+    "hash",
+    generateEasebuzzHash({
+      key: "CI3E63WOM",
+      txnid: "TXN001",
+      amount: "10",
+      productinfo: "walletrecharge",
+      firstname: "test",
+      email: "test@email.com",
+    })
+  );
+  encodedParams.set("udf1", "");
+  encodedParams.set("udf2", "");
+  encodedParams.set("udf3", "");
+  encodedParams.set("udf4", "");
+  encodedParams.set("udf5", "");
+  encodedParams.set("udf6", "");
+  encodedParams.set("udf7", "");
+  encodedParams.set("address1", "");
+  encodedParams.set("address2", "");
+  encodedParams.set("city", "");
+  encodedParams.set("state", "");
+  encodedParams.set("country", "");
+  encodedParams.set("zipcode", "");
+  encodedParams.set("show_payment_mode", "");
+  encodedParams.set("request_flow", "SEAMLESS");
+  encodedParams.set("sub_merchant_id", "");
+  encodedParams.set("payment_category", "");
+  encodedParams.set("account_no", "");
+  encodedParams.set("ifsc", "");
 
-  // Generate transaction ID
-  const txnid = `TXN${Date.now()}`;
-
-  // Raw values for hash generation
-  const rawParams = {
-    key: merchantKey,
-    txnid: txnid,
-    amount: "10.00",
-    firstname: "John Doe",
-    email: "john@example.com",
-    phone: "9876543210",
-    productinfo: "Test Product",
-    udf1: "",
-    udf2: "",
-    udf3: "",
-    udf4: "",
-    udf5: "",
-    udf6: "",
-    udf7: "",
-    udf8: "",
-    udf9: "",
-    udf10: "",
-  };
-
-  // Generate hash in EXACT order
-  const hashString = [
-    rawParams.key,
-    rawParams.txnid,
-    rawParams.amount,
-    rawParams.firstname,
-    rawParams.email,
-    rawParams.udf1,
-    rawParams.udf2,
-    rawParams.udf3,
-    rawParams.udf4,
-    rawParams.udf5,
-    rawParams.udf6,
-    rawParams.udf7,
-    rawParams.udf8,
-    rawParams.udf9,
-    rawParams.udf10,
-    salt,
-  ].join("|");
-
-  const hash = CryptoJS.SHA512(hashString).toString(CryptoJS.enc.Hex);
-
-  // Prepare final request data with URL encoding
-  const requestData = {
-    ...rawParams,
-    surl: "http://yourdomain.com/success",
-    furl: "http://yourdomain.com/failure",
-    hash: hash,
+  const options = {
+    method: "POST",
+    url: "https://testpay.easebuzz.in/payment/initiateLink",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+    },
+    data: encodedParams,
   };
 
   try {
-    const response = await axios.post(
-      "https://testdashboard.easebuzz.in/payment/initiateLink",
-      qs.stringify(requestData), // Encode here
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
-
-    // Handle response
-    if (response.data.status === 1) {
-      res.send(response.data.data);
-    } else {
-      res.status(400).json({
-        error: "Easebuzz Error",
-        message: response.data.message,
-      });
-    }
+    const { data } = await axios.request(options);
+    console.log("data", data);
+    res.send(data);
   } catch (error) {
-    console.error("Full Error:", error.response?.data || error.message);
-    res.status(500).json({
-      error: "Payment Failed",
-      debug: {
-        generatedHash: hash,
-        serverMessage: error.response?.data,
-      },
-    });
+    console.log("error initiating payment", error);
+    console.error(error);
   }
 });
