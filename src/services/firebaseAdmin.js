@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-// const fetch = require("node-fetch"); // or native fetch if using Node 18+
 require("dotenv").config();
 
 let firebaseApp;
