@@ -7,7 +7,7 @@ async function graphqlRequest(query, variables = {}) {
     { query, variables },
     {
       headers: {
-        "x-hasura-admin-secret": process.env.HASURA_SECRET,
+        "x-hasura-admin-secret": process.env.HASURA_ADMIN_KEY,
         "Content-Type": "application/json",
       },
     }

@@ -15,6 +15,7 @@ const createNewUser = async ({
   `;
   const variables = { email, firebase_id, full_name, phone_number };
   const result = await graphqlRequest(query, variables);
+  console.log("result", JSON.stringify(result));
   return result.data.insert_users_one.id;
 };
 
