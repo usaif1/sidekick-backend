@@ -9,9 +9,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api", require("./src/routes/paymentRoutes"));
+// app.use("/api", require("./src/routes/paymentRoutes"));
 app.use("/api", require("./src/routes/userRoutes"));
 app.use("/api", require("./src/routes/scooterRoutes"));
+app.use("/api", require("./src/routes/paymentRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Hello from Express + Firebase Admin!");
