@@ -45,8 +45,30 @@ const startFetchFetchScooterByNumber = async (_ilike) => {
   return result.data.scooters[0];
 };
 
+const createUserOrg = async ({ organization_id, user_id }) => {
+  const query = `
+    mutation createUserOrg($organization_id: uuid = "", $user_id: uuid = "") {
+      insert_user_organizations_one(object: {organization_id: $organization_id, user_id: $user_id}) {
+        id
+      }
+    }
+  `;
+  const variables = { organization_id, user_id };
+  console.log("Creating user_org with variables:", variables);
+
+  try {
+    const result = await graphqlRequest(query, variables);
+    console.log("createUserOrg result:", JSON.stringify(result));
+    return result;
+  } catch (err) {
+    console.error("Error in createUserOrg GraphQL request:", err);
+    throw err;
+  }
+};
+
 module.exports = {
   createNewUser,
   createUserWallet,
   startFetchFetchScooterByNumber,
+  createUserOrg,
 };
