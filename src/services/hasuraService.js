@@ -1,3 +1,4 @@
+const axios = require("axios");
 const { graphqlRequest } = require("../utils/hasuraRequest");
 
 const createNewUser = async ({
@@ -31,22 +32,28 @@ const createUserWallet = async (user_id) => {
   await graphqlRequest(query, variables);
 };
 
-const startFetchFetchScooterByNumber = async (_ilike) => {
-  const query = `
-    query fetchScooterByNumber($_ilike: String!) {
-      scooters(where: { registration_number: { _ilike: $_ilike } }) {
-        registration_number
-        id
-      }
-    }
-  `;
-  const variables = { _ilike };
-  const result = await graphqlRequest(query, variables);
-  return result.data.scooters[0];
+// const startFetchFetchScooterByNumber = async (_ilike) => {
+//   const query = `
+//     query fetchScooterByNumber($_ilike: String!) {
+//       scooters(where: { registration_number: { _ilike: $_ilike } }) {
+//         registration_number
+//         id
+//       }
+//     }
+//   `;
+//   const variables = { _ilike };
+//   const result = await graphqlRequest(query, variables);
+//   return result.data.scooters[0];
+// };
+
+const toggleScooter = async (imei, immobilize) => {
+  try {
+    const response = await axios.post();
+  } catch (error) {}
 };
 
 module.exports = {
   createNewUser,
   createUserWallet,
-  startFetchFetchScooterByNumber,
+  // startFetchFetchScooterByNumber,
 };
