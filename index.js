@@ -1,10 +1,12 @@
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 const { initializeFirebase } = require("./src/services/firebaseAdmin");
 
 initializeFirebase();
 
 const app = express();
+app.use(cors()); // Allow all origins
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
