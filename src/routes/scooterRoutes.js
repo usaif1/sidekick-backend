@@ -1,5 +1,6 @@
 const express = require("express");
 const {
+  getScooterLastSeen,
   startFetchFetchScooterByNumber,
   toggleScooter,
 } = require("../services/scooterService");
@@ -23,6 +24,17 @@ router.post("/scooter/toggle", async (req, res) => {
     res.send(response);
   } catch (err) {
     console.error("Error toggling scooter:", err);
+    res.status(500).send(false);
+  }
+});
+
+router.post("/scooter/lastseen", async (req, res) => {
+  const { imei } = req.body;
+  try {
+    const response = await getScooterLastSeen(imei);
+    res.send(response);
+  } catch (err) {
+    console.error("Error fetching scooter:", err);
     res.status(500).send(false);
   }
 });

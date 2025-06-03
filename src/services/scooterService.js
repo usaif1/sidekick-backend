@@ -36,16 +36,61 @@ const toggleScooter = async (imei, immobilize) => {
     console.log("response", response.data);
 
     if (response.data.message === "OK") {
-      return true;
+      return {
+        success: true,
+        message: "Scooter immobilized",
+        data: response.data,
+      };
     }
-    return false;
+    return {
+      success: false,
+      message: "Failed to immobilize scooter",
+      data: response.data,
+    };
   } catch (error) {
     console.error("Error toggling scooter:", error);
-    return false;
+    return {
+      success: false,
+      message: "Failed to immobilize scooter",
+      data: error,
+    };
+  }
+};
+
+const getScooterLastSeen = async (imei) => {
+  try {
+    const numericImei = parseInt(imei);
+    const response = await ajjasClient.get(`/lastseen/`, {
+      params: {
+        imei: numericImei,
+      },
+    });
+
+    if (response.data.message === "OK") {
+      return {
+        success: true,
+        message: "Scooter last seen",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Failed to get scooter last seen",
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Error getting scooter last seen:", error);
+    return {
+      success: false,
+      message: "Failed to get scooter last seen",
+      data: error,
+    };
   }
 };
 
 module.exports = {
   startFetchFetchScooterByNumber,
   toggleScooter,
+  getScooterLastSeen,
 };
