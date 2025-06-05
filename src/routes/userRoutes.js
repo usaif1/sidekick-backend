@@ -6,6 +6,8 @@ const {
   createUserOrg,
   createEmployee,
   checkUserExists,
+  verifyFirebaseToken,
+  getUserById,
 } = require("../services/hasuraService");
 const router = express.Router();
 
@@ -148,6 +150,32 @@ router.post("/user-exists", async (req, res) => {
     return res.status(200).json({
       success: false,
       message: "User does not exist",
+      data: null,
+    });
+  }
+});
+
+router.post("/get-manager-details", async (req, res) => {
+  const { authorization } = req.headers;
+
+  const validToken = authorization.split(" ")[1];
+
+  try {
+    const decodedToken = await verifyFirebaseToken(validToken);
+    const uid = decodedToken.uid;
+
+    console.log("uid", uid);
+
+    const user = await getUserById(uid);
+
+    res
+      .status(200)
+      .json({ success: true, data: user, message: "User details" });
+  } catch (error) {
+    console.error("Error in verifyFirebaseToken:", error);
+    return res.status(200).json({
+      success: false,
+      message: "Invalid token",
       data: null,
     });
   }

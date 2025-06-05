@@ -46,15 +46,16 @@ const createUserWallet = async (user_id) => {
 //   return result.data.scooters[0];
 // };
 
-const createUserOrg = async ({ organization_id, user_id }) => {
+const createUserOrg = async ({ organization_id, user_id, employee_id }) => {
   const query = `
-    mutation createUserOrg($organization_id: uuid = "", $user_id: uuid = "") {
-      insert_user_organizations_one(object: {organization_id: $organization_id, user_id: $user_id}) {
-        id
-      }
-    }
-  `;
-  const variables = { organization_id, user_id };
+    mutation CreateEmployee($employee_id: String = "SKE001", $organization_id: uuid = "15fbefc7-aaa4-4335-ae7d-09bdc8fe3c7b", $user_id: uuid = "a35547d5-5c6b-44a6-ad62-b9b16589e48f") {
+    insert_user_organizations_one(object: {employee_id: $employee_id, organization_id: $organization_id, user_id: $user_id}) {
+    id
+    role
+    user_id
+  }
+}`;
+  const variables = { organization_id, user_id, employee_id };
   console.log("Creating user_org with variables:", variables);
 
   try {
@@ -98,6 +99,11 @@ const createEmployee = async (employeeData) => {
       firebase_id: userRecord.uid,
     });
     await createUserWallet(userId);
+    await createUserOrg({
+      organization_id,
+      user_id: userId,
+      employee_id: employeeId,
+    });
 
     return userRecord; // contains uid, provider info, etc.
   } catch (error) {
@@ -116,6 +122,34 @@ const checkUserExists = async (phone_number) => {
   }
 };
 
+const verifyFirebaseToken = async (token) => {
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    console.log("Decoded claims:", decodedToken);
+    return decodedToken; // contains custom claims + standard ones
+  } catch (error) {
+    console.error("Error verifying Firebase token:", error);
+    return null;
+  }
+};
+
+const getUserById = async (uid) => {
+  const query = `query UserDetailsByUID($firebase_id: String = "dVbh00jlq3ZKdTKAjY7FWr6Zirm1") {
+  users(where: {firebase_id: {_eq: $firebase_id}}) {
+    id
+    full_name
+    phone_number
+  }
+}
+`;
+
+  const variables = { firebase_id: uid };
+  const result = await graphqlRequest(query, variables);
+  console.log("result", JSON.stringify(result));
+
+  return result.data.users[0];
+};
+
 module.exports = {
   createNewUser,
   createUserWallet,
@@ -123,4 +157,6 @@ module.exports = {
   createUserOrg,
   createEmployee,
   checkUserExists,
+  verifyFirebaseToken,
+  getUserById,
 };
