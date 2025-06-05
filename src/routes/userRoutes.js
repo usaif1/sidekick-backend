@@ -119,8 +119,8 @@ router.post("/create-employee", async (req, res) => {
     console.error("Error in createEmployee:", error);
     return res.status(500).json({
       success: false,
-      error: "Failed to create user",
-      details: error.message,
+      message: "Failed to create user",
+      data: error.message,
     });
   }
 });
