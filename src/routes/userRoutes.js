@@ -155,7 +155,7 @@ router.post("/user-exists", async (req, res) => {
   }
 });
 
-router.post("/get-manager-details", async (req, res) => {
+router.post("/get-user-details", async (req, res) => {
   const { authorization } = req.headers;
 
   const validToken = authorization.split(" ")[1];
