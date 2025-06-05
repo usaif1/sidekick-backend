@@ -3,7 +3,9 @@ const admin = require("firebase-admin");
 const {
   createNewUser,
   createUserWallet,
-  createUserOrg
+  createUserOrg,
+  createEmployee,
+  checkUserExists,
 } = require("../services/hasuraService");
 const router = express.Router();
 
@@ -42,10 +44,13 @@ router.post("/set-claims", async (req, res) => {
 });
 
 router.post("/set-claims/org-user", async (req, res) => {
-  const { uid, role, full_name, phone_number, email, organization_id } = req.body;
+  const { uid, role, full_name, phone_number, email, organization_id } =
+    req.body;
 
   if (!uid || !organization_id || !role) {
-    return res.status(400).json({ error: "uid, role, and organization_id are required" });
+    return res
+      .status(400)
+      .json({ error: "uid, role, and organization_id are required" });
   }
 
   try {
@@ -84,9 +89,60 @@ router.post("/set-claims/org-user", async (req, res) => {
     });
   } catch (err) {
     console.error("Error setting claims:", err);
-    return res.status(500).json({ error: "Failed to set custom claims", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Failed to set custom claims", details: err.message });
   }
 });
 
+router.post("/create-org-user", async (req, res) => {
+  const { full_name, phone_number, email, organization_id, employeeId } =
+    req.body;
+
+  if (!full_name || !phone_number || !organization_id || !employeeId) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const newEmployee = await createEmployee({
+      full_name,
+      phone_number,
+      email,
+      organization_id,
+      employeeId,
+    });
+
+    res
+      .status(200)
+      .json({ success: true, data: newEmployee, message: "User created" });
+  } catch (error) {
+    console.error("Error in createEmployee:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to create user",
+      details: error.message,
+    });
+  }
+});
+
+router.post("/user-exists", async (req, res) => {
+  const { phone_number } = req.body;
+  if (!phone_number) {
+    return res.status(400).json({ error: "phone_number is required" });
+  }
+
+  try {
+    const user = await checkUserExists(phone_number);
+    return res
+      .status(200)
+      .json({ success: true, data: user, message: "User already exists" });
+  } catch (error) {
+    console.error("Error in checkUserExists:", error);
+    return res.status(500).json({
+      error: "Failed to check user existence",
+      details: error.message,
+    });
+  }
+});
 
 module.exports = router;

@@ -1,5 +1,5 @@
-const axios = require("axios");
 const { graphqlRequest } = require("../utils/hasuraRequest");
+const admin = require("firebase-admin");
 
 const createNewUser = async ({
   email,
@@ -67,9 +67,60 @@ const createUserOrg = async ({ organization_id, user_id }) => {
   }
 };
 
+// 1️⃣  Minimal – create a phone-auth user
+const createEmployee = async (employeeData) => {
+  const { full_name, phone_number, email, organization_id, employeeId } =
+    employeeData;
+
+  try {
+    const userRecord = await admin.auth().createUser({
+      phoneNumber: phone_number, // e.g. '+919876543210'
+      disabled: false, // optional
+    });
+
+    // Default role - you may want to pass this as a parameter
+    const role = "user"; // or determine based on your business logic
+
+    const hasuraClaims = {
+      "https://hasura.io/jwt/claims": {
+        "x-hasura-default-role": role,
+        "x-hasura-allowed-roles": [role],
+        "x-hasura-user-id": userRecord.uid,
+        "x-hasura-organization-id": organization_id,
+      },
+    };
+    await admin.auth().setCustomUserClaims(userRecord.uid, hasuraClaims);
+
+    const userId = await createNewUser({
+      full_name,
+      phone_number,
+      email,
+      firebase_id: userRecord.uid,
+    });
+    await createUserWallet(userId);
+
+    return userRecord; // contains uid, provider info, etc.
+  } catch (error) {
+    console.error("Error in createEmployee:", error);
+    throw error;
+  }
+};
+
+const checkUserExists = async (phone_number) => {
+  try {
+    const user = await admin.auth().getUserByPhoneNumber(phone_number);
+    return user;
+  } catch (error) {
+    console.error("Error in checkUserExists:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   createNewUser,
   createUserWallet,
   // startFetchFetchScooterByNumber,
   createUserOrg,
+  createEmployee,
+  checkUserExists,
 };
