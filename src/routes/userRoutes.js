@@ -98,10 +98,10 @@ router.post("/set-claims/org-user", async (req, res) => {
 });
 
 router.post("/create-employee", async (req, res) => {
-  const { full_name, phone_number, email, organization_id, employeeId } =
+  const { full_name, phone_number, email, organization_id, employee_id } =
     req.body;
 
-  if (!full_name || !phone_number || !organization_id || !employeeId) {
+  if (!full_name || !phone_number || !organization_id || !employee_id) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -111,7 +111,7 @@ router.post("/create-employee", async (req, res) => {
       phone_number,
       email,
       organization_id,
-      employeeId,
+      employee_id,
     });
 
     res
