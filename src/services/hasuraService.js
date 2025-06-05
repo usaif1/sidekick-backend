@@ -139,6 +139,12 @@ const getUserById = async (uid) => {
     id
     full_name
     phone_number
+    user_organizations {
+      organization_id
+      organization {
+        name
+      }
+    }
   }
 }
 `;
