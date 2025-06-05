@@ -133,6 +133,13 @@ router.post("/user-exists", async (req, res) => {
 
   try {
     const user = await checkUserExists(phone_number);
+
+    if (!user) {
+      return res
+        .status(200)
+        .json({ success: false, data: null, message: "User does not exist" });
+    }
+
     return res
       .status(200)
       .json({ success: true, data: user, message: "User already exists" });
