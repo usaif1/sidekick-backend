@@ -145,8 +145,9 @@ router.post("/user-exists", async (req, res) => {
       .json({ success: true, data: user, message: "User already exists" });
   } catch (error) {
     console.error("Error in checkUserExists:", error);
-    return res.status(500).json({
-      error: "Failed to check user existence",
+    return res.status(200).json({
+      success: false,
+      error: "User does not exist",
       details: error.message,
     });
   }
