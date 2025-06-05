@@ -147,7 +147,7 @@ router.post("/user-exists", async (req, res) => {
     console.error("Error in checkUserExists:", error);
     return res.status(200).json({
       success: false,
-      error: "User does not exist",
+      message: "User does not exist",
       data: null,
     });
   }
