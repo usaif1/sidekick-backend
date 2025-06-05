@@ -95,7 +95,7 @@ router.post("/set-claims/org-user", async (req, res) => {
   }
 });
 
-router.post("/create-org-user", async (req, res) => {
+router.post("/create-employee", async (req, res) => {
   const { full_name, phone_number, email, organization_id, employeeId } =
     req.body;
 
