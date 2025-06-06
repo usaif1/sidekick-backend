@@ -156,10 +156,37 @@ const getUserById = async (uid) => {
   return result.data.users[0];
 };
 
+const createOrganization = async ({ email, name }) => {
+  const query = `
+    mutation createOrg($email: String = "", $name: String = "") {
+      insert_organizations_one(object: {email: $email, name: $name}) {
+        id
+      }
+    }
+  `;
+  const variables = { email, name };
+  const result = await graphqlRequest(query, variables);
+  console.log("result", JSON.stringify(result));
+  return result.data.insert_organizations_one.id;
+};
+
+const createOrganizationWallet = async (org_id) => {
+  const query = `
+    mutation createWallet($object: wallets_insert_input!) {
+      insert_wallets_one(object: $object) {
+        id
+      }
+    }
+  `;
+  const variables = { object: { org_id, wallet_type: "ORG" } };
+  await graphqlRequest(query, variables);
+};
 module.exports = {
   createNewUser,
   createUserWallet,
+  createOrganizationWallet,
   // startFetchFetchScooterByNumber,
+  createOrganization,
   createUserOrg,
   createEmployee,
   checkUserExists,
