@@ -70,7 +70,7 @@ const createUserOrg = async ({ organization_id, user_id, employee_id }) => {
 
 // 1️⃣  Minimal – create a phone-auth user
 const createEmployee = async (employeeData) => {
-  const { full_name, phone_number, email, organization_id, employeeId } =
+  const { full_name, phone_number, email, organization_id, employee_id } =
     employeeData;
 
   try {
@@ -102,7 +102,7 @@ const createEmployee = async (employeeData) => {
     await createUserOrg({
       organization_id,
       user_id: userId,
-      employee_id: employeeId,
+      employee_id: employee_id,
     });
 
     return userRecord; // contains uid, provider info, etc.
