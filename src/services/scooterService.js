@@ -89,8 +89,35 @@ const getScooterLastSeen = async (imei) => {
   }
 };
 
+const getScooterStats = async (imei, toTime, fromTime) => {
+  try {
+    const numericImei = parseInt(imei);
+    const response = await ajjasClient.get(`/dailyStats/`, {
+      params: {
+        imei: numericImei,
+        toTs: toTime,
+        fromTs: fromTime,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Scooter stats",
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("Error getting scooter stats:", error);
+    return {
+      success: false,
+      message: "Failed to get scooter stats",
+      data: error,
+    };
+  }
+};
+
 module.exports = {
   startFetchFetchScooterByNumber,
   toggleScooter,
   getScooterLastSeen,
+  getScooterStats,
 };
