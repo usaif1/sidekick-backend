@@ -7,7 +7,7 @@ const ajjasClient = axios.create({
     "Content-Type": "application/json",
     "x-api-key": process.env.AJJAS_API_KEY,
   },
-  timeout: 10000,
+  timeout: 100000,
 });
 
 const startFetchFetchScooterByNumber = async (_ilike) => {
