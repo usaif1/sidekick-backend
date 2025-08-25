@@ -1,13 +1,19 @@
+// solve.js
 const crypto = require("crypto");
 
 function generateSolveHash(token, preSharedKey) {
-  return crypto.createHmac("sha256", preSharedKey).update(token).digest(); // Return buffer for base64 encoding
+  // Return raw HMAC bytes (Buffer), same as before
+  return crypto
+    .createHmac("sha256", preSharedKey)
+    .update(String(token).trim(), "utf8")
+    .digest(); // Buffer
 }
 
 function buildSolveCommandBuffer(hashBuffer) {
-  const base64Hash = hashBuffer.toString("base64");
-  const command = `#solved ${base64Hash}\r\n`;
+  // Ajjas expects HEX inside the command (not base64)
+  const hexHash = hashBuffer.toString("hex"); // <-- key change
+  const command = `#solved ${hexHash}\r\n`;
   return command;
 }
 
-module.exports = { generateSolveHash, buildSolveCommandBuffer }; 
+module.exports = { generateSolveHash, buildSolveCommandBuffer };
