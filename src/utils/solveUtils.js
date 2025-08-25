@@ -1,28 +1,13 @@
-// solve.js (drop-in)
 const crypto = require("crypto");
 
-function isHex(str) {
-  return typeof str === "string" && str.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(str);
-}
-
 function generateSolveHash(token, preSharedKey) {
-  const t = String(token).trim();
-  const k = String(preSharedKey).trim();
-
-  // If the token looks hex, treat it as raw bytes; else as UTF-8 text
-  const msg = isHex(t) ? Buffer.from(t, "hex") : Buffer.from(t, "utf8");
-  // If the key looks hex, treat it as raw bytes; else as UTF-8 text
-  const key = isHex(k) ? Buffer.from(k, "hex") : Buffer.from(k, "utf8");
-
-  // Return raw HMAC bytes (Buffer) – same return type as your original
-  return crypto.createHmac("sha256", key).update(msg).digest();
+  return crypto.createHmac("sha256", preSharedKey).update(token).digest(); // Return buffer for base64 encoding
 }
 
 function buildSolveCommandBuffer(hashBuffer) {
-  // Ajjas expects HEX inside the command
-  const hexHash = hashBuffer.toString("hex"); // lowercase hex (64 chars)
-  const command = `#solved ${hexHash}\r\n`;
+  const base64Hash = hashBuffer.toString("base64");
+  const command = `#solved ${base64Hash}\r\n`;
   return command;
 }
 
-module.exports = { generateSolveHash, buildSolveCommandBuffer };
+module.exports = { generateSolveHash, buildSolveCommandBuffer }; 
