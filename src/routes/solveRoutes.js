@@ -7,6 +7,9 @@ router.get("/solve", async (req, res) => {
   const token = req.query.token;
   const scooterRegNo = req.query.scooterRegNo;
 
+  console.log("token", token);
+  console.log("scooterRegNo", scooterRegNo);
+
   try {
     const encKey = await axios.post(
       "https://supreme-mustang-86.hasura.app/api/rest/fetchenckey",
