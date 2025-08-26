@@ -1,6 +1,7 @@
 const express = require("express");
 const { processSolveRequest } = require("../services/solveService");
 const axios = require("axios");
+const { graphqlRequest } = require("../utils/hasuraRequest");
 const router = express.Router();
 
 router.get("/solve", async (req, res) => {
@@ -11,12 +12,22 @@ router.get("/solve", async (req, res) => {
   console.log("scooterRegNo", scooterRegNo);
 
   try {
-    const encKey = await axios.post(
-      "https://supreme-mustang-86.hasura.app/api/rest/fetchenckey",
-      {
-        regNo: scooterRegNo,
-      }
-    );
+    // const encKey = await axios.post(
+    //   "https://supreme-mustang-86.hasura.app/api/rest/fetchenckey",
+    //   {
+    //     regNo: scooterRegNo,
+    //   }
+    // );
+
+    const query = `query fetchEncKey($regNo: String = "SK01FL0009") {
+  scooters(where: {registration_number: {_eq: $regNo}}) {
+    enc_key
+  }
+}`;
+
+    const variables = { regNo: scooterRegNo };
+
+    const encKey = await graphqlRequest(query, variables);
 
     const result = await processSolveRequest(token, encKey);
     console.log(result.command);
