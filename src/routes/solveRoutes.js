@@ -14,7 +14,7 @@ router.get("/solve", async (req, res) => {
     const encKey = await axios.post(
       "https://supreme-mustang-86.hasura.app/api/rest/fetchenckey",
       {
-        scooterRegNo: scooterRegNo,
+        regNo: scooterRegNo,
       }
     );
 
