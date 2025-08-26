@@ -28,6 +28,7 @@ router.get("/solve", async (req, res) => {
     const variables = { regNo: scooterRegNo };
 
     const response = await graphqlRequest(query, variables);
+    console.log("response from key", response);
     const encKey = response.data.scooters[0].enc_key;
 
     const result = await processSolveRequest(token, encKey);
