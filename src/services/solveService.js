@@ -1,8 +1,11 @@
-const { generateSolveHash, buildSolveCommandBuffer } = require("../utils/solveUtils");
+const {
+  generateSolveHash,
+  buildSolveCommandBuffer,
+} = require("../utils/solveUtils");
 
-async function processSolveRequest(token) {
-  const PRE_SHARED_KEY = process.env.PRE_SHARED_KEY;
-  
+async function processSolveRequest(token, encKey) {
+  const PRE_SHARED_KEY = encKey;
+
   if (!PRE_SHARED_KEY) {
     throw new Error("PRE_SHARED_KEY environment variable is not set");
   }
@@ -17,4 +20,4 @@ async function processSolveRequest(token) {
   return { command: commandBuffer };
 }
 
-module.exports = { processSolveRequest }; 
+module.exports = { processSolveRequest };
